@@ -1,9 +1,25 @@
 import cleanlab
-from sklearn.preprocessing import LabelEncoder
-from sklearn.pipeline import Pipeline
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder
+
+
+def clean_duplicates(df):
+    full_length = len(df)
+    cnt_duplicates = df.duplicated().sum()
+    df = df.drop_duplicates().reset_index(drop=True)
+    return full_length, cnt_duplicates, df
+
+
+def clean_relevant_duplicates(df, text_columns, target_column):
+    relevant_length = len(df)
+    cnt_relevant_duplicates = df[text_columns +
+                                 [target_column]].duplicated().sum()
+    df = df[text_columns + [target_column]
+            ].drop_duplicates().reset_index(drop=True)
+    return relevant_length, cnt_relevant_duplicates, df
 
 
 def return_text_and_targets(df, text_columns, target_column):
@@ -16,7 +32,7 @@ def return_text_and_targets(df, text_columns, target_column):
 
         for _, row in text_columns.iterrows():
             text = []
-            
+
             for col in text_columns:
                 if type(row[col]) == str:
                     text.append(row[col])
@@ -30,25 +46,26 @@ def return_text_and_targets(df, text_columns, target_column):
 def analyse_data_annotation(X, y, threshold):
     le = LabelEncoder()
 
-    labels =le.fit_transform(y=y)
+    labels = le.fit_transform(y=y)
 
     steps = [
-                ('vectoriser', TfidfVectorizer()),
-                ('logreg', LogisticRegression(class_weight='balanced', n_jobs=-1))
-            ]
+        ('vectoriser', TfidfVectorizer()),
+        ('logreg', LogisticRegression(class_weight='balanced', n_jobs=-1))
+    ]
 
     pipe = Pipeline(steps)
 
     cl = cleanlab.classification.CleanLearning(
         pipe, find_label_issues_kwargs={
             'min_examples_per_class': threshold,
-            # "cv_n_folds": 
-            }
-        )
+            # "cv_n_folds":
+        }
+    )
 
     cl.fit(X=X, labels=labels)
 
-    hs = cleanlab.dataset.health_summary(labels, confident_joint=cl.confident_joint, class_names=le.classes_, verbose=False)
+    hs = cleanlab.dataset.health_summary(
+        labels, confident_joint=cl.confident_joint, class_names=le.classes_, verbose=False)
 
     data_quality_score = hs['overall_label_health_score']
     report = hs['classes_by_label_quality']
