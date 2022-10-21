@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def compute_percentage_of_suitable_data(df: pd.DataFrame, target_column: str, full_length: int) -> float:
@@ -72,3 +73,23 @@ def check_value_counts(df: pd.DataFrame, target_column: str, threshold: int = 2)
     value_cnt_df = pd.DataFrame(df[target_column].value_counts())
     df = df[df[target_column].isin(list(value_cnt_df[value_cnt_df.values > threshold].index))]
     return df, len(value_cnt_df[value_cnt_df.values > threshold]) / len(value_cnt_df) * 100
+
+
+def render_pie_chart(df: pd.DataFrame, column_name: str) -> plt.Axes:
+    """
+    creates pie chart based on column proportion 
+    :param df: pd.DataFrame which is going to be used for modeling
+    :param target_column: column name where to find targets
+    :return matplotlib pie chart object for further rendering
+
+    """
+    value_counts_data = df[column_name].value_counts()
+    _ = plt.pie(
+        value_counts_data, 
+        labels=value_counts_data.keys(), 
+        autopct="%1.1f%%", 
+        pctdistance=0.5, 
+        )
+    _ = plt.title("Label distribution")
+
+    return plt
