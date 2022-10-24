@@ -8,7 +8,16 @@ class Model:
     def __init__(self):
         self.model = joblib.load('model.joblib')
     
-    def predict(self, df: pd.DataFrame, text_columns: str, target_column: str) -> pd.DataFrame:
+    def predict(self, df: pd.DataFrame, text_columns: List[str], target_column: str) -> pd.DataFrame:
+        """
+        joins all specified text fields and runs inference
+
+        :param df: dataframe on what to run inference
+        :param text_columns: list of column names where relevant text data is stored
+        :param target_column: target name
+
+        :return dataframe with predictions
+        """
 
         data = self.return_text(df=df, text_columns=text_columns)
 
@@ -18,6 +27,14 @@ class Model:
 
     @staticmethod
     def return_text(df: pd.DataFrame, text_columns: List[str]) -> pd.Series:
+        """
+        joins text from text columns into one pd.Series
+        
+        :param df: original dataframe for inference
+        :param text_columns: column with text relevant for inference
+        
+        :return pd.Series with all textual information in rows
+        """
         text_all = []
 
         if len(text_columns) == 1:
