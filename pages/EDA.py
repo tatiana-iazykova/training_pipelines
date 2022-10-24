@@ -5,7 +5,10 @@ from eda.data_utils import (analyse_data_annotation, clean_duplicates,
                             clean_relevant_duplicates, return_text_and_targets)
 from eda.Dataset import PandasDataset
 from eda.eda_utils import (check_value_counts,
-                           compute_percentage_of_suitable_data)
+                           compute_percentage_of_suitable_data,
+                           render_pie_chart)
+
+
 
 st.set_page_config(
     page_title=EDA_NAME
@@ -65,7 +68,6 @@ if df is not None:
                 }
             ).T
 
-            
             res.columns = ['stats']
             st.session_state["base_data_statistics"] = res
             st.dataframe(res.style.format(precision=2))
@@ -79,6 +81,9 @@ if df is not None:
 
             score, report = analyse_data_annotation(
                 X=X, y=y, threshold=THRESHOLD)
+
+            pie_chart = render_pie_chart(df=df, column_name=target_column)
+            st.pyplot(pie_chart)
 
             st.session_state["data_quality_result"] = report
             st.session_state["data_quality_score"] = score
