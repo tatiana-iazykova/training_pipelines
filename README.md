@@ -16,22 +16,24 @@ cd training_pipelines
 
 Optional (create virtual environment):
 
-    ```bash
-    python3 -m venv venv 
-    ```
-    For Unix-like OS:
+```bash
+python3 -m venv venv 
+```
+    
+For Unix-like OS:
 
-    ```bash
-    source venv/bin/activate
-    ```
+```bash
+source venv/bin/activate
+```
 
-    For Windows:
+For Windows:
 
-    ```bash
-    source venv/Scripts/activate
-    ```
+```bash
+source venv/Scripts/activate
+```
 
 Upgrade pip, wheel and setuptools, install dependencies and the run streamlit app
+
 ```bash
 pip install -U pip wheel setuptools && pip install -r requirements.txt
 streamlit run
