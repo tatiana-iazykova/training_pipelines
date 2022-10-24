@@ -3,6 +3,7 @@ from constants import TFIDF_NAME
 from home_utils import create_app
 from models.build_tfidf_logreg import build_tfidf_logreg
 from pathlib import Path
+import eli5
 
 st.set_page_config(
     page_title=TFIDF_NAME
@@ -57,12 +58,22 @@ else:
             }
 
             path_to_template = Path(__file__).parent.parent / "streamlit_templates" / "text_classification"
-            create_app(model=model, log=log, path_to_template=path_to_template.as_posix())
 
-            with open("application.zip", "rb") as fp:
-                btn = st.download_button(
-                    label="Download ZIP",
-                    data=fp,
-                    file_name="application.zip",
-                    mime="application/zip"
-                )
+            if st.checkbox("Explain model"):
+                r = eli5.explain_weights_df(
+                        model['logreg'], 
+                        top=10, 
+                        feature_names=model['vectoriser'].get_feature_names_out()
+                        )
+                st.dataframe(r)
+
+            if st.checkbox("Save model"):
+                create_app(model=model, log=log, path_to_template=path_to_template.as_posix())
+
+                with open("application.zip", "rb") as fp:
+                    btn = st.download_button(
+                        label="Download ZIP",
+                        data=fp,
+                        file_name="application.zip",
+                        mime="application/zip"
+                    )
