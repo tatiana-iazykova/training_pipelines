@@ -9,18 +9,23 @@ from Model import Model
 
 @st.cache(hash_funcs={Model: id})
 def load():
+    """
+    load model
+    """
     model = Model()
     return model
 
 
 @st.cache
-def to_excel(df: pd.DataFrame):
+def to_excel(df: pd.DataFrame) -> bytes:
+    """
+    converts dataframe to an excel bytefile
+    """
     outputs = BytesIO()
     writer = pd.ExcelWriter(outputs, engine="openpyxl")
     df.to_excel(writer, index=False, sheet_name="ModelPredictions")
     writer.save()
     processed_data = outputs.getvalue()
-    print(type(processed_data))
     return processed_data
 
 

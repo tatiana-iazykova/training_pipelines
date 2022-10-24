@@ -3,9 +3,22 @@ import shutil
 import os
 import joblib
 import json
+from typing import List, Dict, Any
+import sklearn
 
 
-def generate_requirements():
+def generate_requirements() -> List[str]:
+    """
+    creates a set of requirements crucial for running an app with the model trained with this pipeline
+
+    :return list of librarires and their versions
+
+    Example
+
+    >>> generate_requirements()
+    ["scikit-learn==1.1.2", "streamlit==1.13.0", "openpyxl==3.0.10", "pandas==1.5.1"]
+
+    """
     requirements = []
 
     import sklearn
@@ -27,7 +40,14 @@ def generate_requirements():
     return requirements
 
 
-def create_app(model, log, path_to_template):
+def create_app(model: sklearn.pipeline.Pipeline, log: Dict[str, Any], path_to_template: str) -> None:
+    """
+    assembles zip archive with working streamlit application with your model
+
+    :param model: trained sklearn pipeline that can be saved with the help of joblib
+    :param log: data analysis result as well as model metrics
+    :param path_to_template: path to the folder where relevant streamlit template and utility files are stored
+    """
 
     if os.path.exists("temp/"):
         shutil.rmtree("temp/")

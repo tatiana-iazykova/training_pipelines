@@ -6,9 +6,16 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import (StratifiedKFold, cross_val_score,
                                      train_test_split)
 from sklearn.pipeline import Pipeline
+from typing import Union, Any, List, Tuple
+from nptyping import NDArray
 
 
-def build_pipeline():
+def build_pipeline() -> Pipeline:
+    """
+    function that builds sklearn pipeline with tfidf as vectoriser and logistic regression as model
+
+    :return sklearn pipeline
+    """
 
     steps = [
         ('vectoriser', TfidfVectorizer()),
@@ -20,7 +27,15 @@ def build_pipeline():
     return pipe
 
 
-def fit_model(X, y):
+def fit_model(X: Union[pd.Series, List[str]], y: List[Any]) -> Tuple[Pipeline, NDArray]:
+    """
+    Computes f1-weighted cross validation on 5 stratified folds and fits model
+
+    :param X: column or list of texts
+    :param y: list of targets
+
+    :return scores on cross validation and model fitted on the whole data
+    """
     stf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     pipe = build_pipeline()
 
@@ -32,8 +47,16 @@ def fit_model(X, y):
     return pipe, train_scores
 
 
-def get_classification_report(y_test, y_pred):
-    report = classification_report(y_test, y_pred, output_dict=True)
+def get_classification_report(y_test: Union[List[Any], NDArray], y_pred: Union[List[Any], NDArray]) -> pd.DataFrame:
+    """
+    calcuates classification report and transforms it to a pretty dataframe
+
+    :param y_test: true targets
+    :param y_pred: model predictions
+
+    :return: pretty dataframe
+    """
+    report = classification_report(y_true=y_test, y_pred=y_pred, output_dict=True)
     df_classification_report = pd.DataFrame(report).transpose()
     df_classification_report['support'] = df_classification_report['support'].astype(int)
     df_classification_report['support'].iloc[2] = ''
@@ -45,7 +68,18 @@ def get_classification_report(y_test, y_pred):
     return df_classification_report
 
 
-def build_tfidf_logreg(X, y):
+def build_tfidf_logreg(
+    X: Union[pd.Series, List[str]], 
+    y: List[Any]
+    ) -> Tuple[NDArray, NDArray, pd.DataFrame, Pipeline]:
+    """
+    splits data into train and test, fits model and returns all metrics
+
+    :param X: list or series of textual features
+    :param y: list of targets
+
+    :return train metrics, full data metrics, classification report on test data, fitted model
+    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
     model, train_scores = fit_model(X=X_train, y=y_train)
