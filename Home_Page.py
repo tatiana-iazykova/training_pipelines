@@ -1,42 +1,17 @@
-# training_pipelines
+import streamlit as st
 
-Streamlit app for easy classification modeling
-It's so easy that you should only have to clone this repo, install requirements and run the streamlit app. We'll handle the rest :)
+st.set_page_config(
+    page_title="Home page"
+)
 
+st.sidebar.success("Select a model above")
+st.session_state["X"] = None
+st.session_state["y"] = None
+st.session_state["data"] = None
 
+st.header("Instruction")
 
-0. Clone the repository, install dependencies and run the app
-
-Clone the repo and go to that folder in the terminal
-
-```bash
-git clone https://github.com/tatiana-iazykova/training_pipelines.git
-cd training_pipelines
-```
-
-Optional (create virtual environment):
-
-    ```bash
-    python3 -m venv venv 
-    ```
-    For Unix-like OS:
-
-    ```bash
-    source venv/bin/activate
-    ```
-
-    For Windows:
-
-    ```bash
-    source venv/Scripts/activate
-    ```
-
-Upgrade pip, wheel and setuptools, install dependencies and the run streamlit app
-```bash
-pip install -U pip wheel setuptools && pip install -r requirements.txt
-streamlit run
-```
-
+st.write(""" 
 1. Head to EDA page to get you data assessed
 2. Head to the page with the model you want to try. For now you can choose only the baseline model.
 3. After you train you model you can donwload it neatly packed in a zip archive with all the necessary
@@ -89,3 +64,5 @@ streamlit run
         ```bash
         streamlit run interface.py
         ```
+""")
+
