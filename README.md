@@ -36,7 +36,7 @@ Upgrade pip, wheel and setuptools, install dependencies and the run streamlit ap
 
 ```bash
 pip install -U pip wheel setuptools && pip install -r requirements.txt
-streamlit run
+streamlit run Home_Page.py
 ```
 
 1. Head to EDA page to get you data assessed
