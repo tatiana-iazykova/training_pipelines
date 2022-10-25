@@ -92,7 +92,7 @@ if df is not None:
             num_corrupt = round(len(y) * potential_corrupt_score)
 
             st.write(
-                f"Data Quality: {score * 100 :.2f}. There may be potential issues with {potential_corrupt_score * 10:.2f}% "
+                f"Data Quality: {score * 100 :.2f}. There may be potential issues with {potential_corrupt_score * 100:.2f}% "
                 f"or {num_corrupt} out of {len(y)} examples"
             )
             st.dataframe(report.style.format(precision=2))
