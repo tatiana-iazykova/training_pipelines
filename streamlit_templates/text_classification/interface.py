@@ -32,8 +32,7 @@ def to_excel(df: pd.DataFrame) -> bytes:
 if __name__ == '__main__':
     model = load()
 
-    uploaded_file = st.file_uploader(
-        "Choose file for inference", type=[".xlsx"])
+    uploaded_file = st.file_uploader("Choose file for inference", type=[".xlsx"])
 
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file, engine='openpyxl')
