@@ -4,6 +4,7 @@ from home_utils import create_app
 from models.build_tfidf_logreg import build_tfidf_logreg
 from pathlib import Path
 import eli5
+import numpy as np
 
 st.set_page_config(
     page_title=TFIDF_NAME
@@ -38,8 +39,8 @@ else:
         if proceed or "trash_data" not in st.session_state.keys():
             train_scores, overall_scores, df_classification_report, model = build_tfidf_logreg(X=X, y=y)
 
-            st.write(f"Train scores: {train_scores}")
-            st.write(f"Overall scores: {overall_scores}")
+            st.write(f"Train scores: {np.mean(train_scores)}")
+            st.write(f"Overall scores: {np.mean(overall_scores)}")
 
             st.write("Metrics")
             st.dataframe(df_classification_report.style.format(precision=2))
