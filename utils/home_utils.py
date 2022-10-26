@@ -40,25 +40,29 @@ def generate_requirements() -> List[str]:
     return requirements
 
 
-def create_app(model: sklearn.pipeline.Pipeline, log: Dict[str, Any], path_to_template: str) -> None:
+def create_app(model: sklearn.pipeline.Pipeline, log: Dict[str, Any], path_to_template: str, path_to_core: str) -> None:
     """
     assembles zip archive with working streamlit application with your model
 
     :param model: trained sklearn pipeline that can be saved with the help of joblib
     :param log: data analysis result as well as model metrics
     :param path_to_template: path to the folder where relevant streamlit template and utility files are stored
+    :param path_to_core: path to the folder where core files are stored
     """
 
-    if os.path.exists("temp/"):
-        shutil.rmtree("temp/")
+    temporary_dir = "temp/"
+
+    if os.path.exists(temporary_dir):
+        shutil.rmtree(temporary_dir)
         
-    shutil.copytree(src=path_to_template, dst='temp/')
-    joblib.dump(model, "temp/model.joblib")
+    shutil.copytree(src=path_to_template, dst=temporary_dir)
+    shutil.copytree(src=path_to_core, dst=temporary_dir)
+    joblib.dump(model, f"{temporary_dir}model.joblib")
     requirements = generate_requirements()
-    with open("temp/requirements.txt", "w") as f:
+    with open(f"{temporary_dir}requirements.txt", "w") as f:
         f.write("\n".join(requirements))
-    with open("temp/log.json", "w") as f:
+    with open(f"{temporary_dir}log.json", "w") as f:
         json.dump(log, f, indent=4, ensure_ascii=False)
     
-    shutil.make_archive("application", "zip", "temp/")
-    shutil.rmtree("temp/")
+    shutil.make_archive("application", "zip", temporary_dir)
+    shutil.rmtree(temporary_dir)

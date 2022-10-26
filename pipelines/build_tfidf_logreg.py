@@ -8,6 +8,7 @@ from sklearn.model_selection import (StratifiedKFold, cross_val_score,
 from sklearn.pipeline import Pipeline
 from typing import Union, Any, List, Tuple
 from nptyping import NDArray
+from utils.constants import RANDOM_STATE
 
 
 def build_pipeline() -> Pipeline:
@@ -36,7 +37,7 @@ def fit_model(X: Union[pd.Series, List[str]], y: List[Any]) -> Tuple[Pipeline, N
 
     :return scores on cross validation and model fitted on the whole data
     """
-    stf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    stf = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
     pipe = build_pipeline()
 
     train_scores = cross_val_score(
@@ -80,7 +81,7 @@ def build_tfidf_logreg(
 
     :return train metrics, full data metrics, classification report on test data, fitted model
     """
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y)
 
     model, train_scores = fit_model(X=X_train, y=y_train)
     _, overall_scores = fit_model(X=X, y=y)

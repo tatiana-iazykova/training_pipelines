@@ -5,7 +5,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from typing import Tuple, List, Any
-from models.build_tfidf_logreg import build_pipeline
+from pipelines.build_tfidf_logreg import build_pipeline
+import numpy as np
 
 
 def clean_duplicates(df: pd.DataFrame) -> Tuple[int, float, pd.DataFrame]:
@@ -127,20 +128,21 @@ def return_text_and_targets(df: pd.DataFrame, text_columns: List[str], target_co
     """
     text_all = []
 
-    if len(text_columns) == 1:
+    text_columns_amount = len(text_columns)
+
+    if text_columns_amount == 0:
+        raise ValueError("There is no text colums specified")
+
+    elif text_columns_amount == 1:
         text_all = df[text_columns[0]].to_list()
 
-    elif len(text_columns) > 1:
-
-        for _, row in text_columns.iterrows():
-            text = []
-
-            for col in text_columns:
-                if type(row[col]) == str:
-                    text.append(row[col])
-            text_all.append(' '.join(text).strip())
     else:
-        raise ValueError("There is no text colums specified")
+        
+        df_text = df[text_columns]
+        df_text = df_text.applymap(
+            lambda x: '' if not isinstance(x, str) else x
+        )
+        text_all = df_text.agg(' '.join, axis=1)
 
     return pd.Series(text_all), df[target_column].to_list()
 

@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 
 from Model import Model
+from core.Dataset import PandasDataset
 
 
 @st.cache(hash_funcs={Model: id})
@@ -32,7 +33,9 @@ def to_excel(df: pd.DataFrame) -> bytes:
 if __name__ == '__main__':
     model = load()
 
-    uploaded_file = st.file_uploader("Choose file for inference", type=[".xlsx"])
+    uploaded_file = st.file_uploader("Choose file for inference", type=["csv", "xls", "xlsx", "tsv"])
+    uploaded_file = PandasDataset(uploaded_file)
+    uploaded_file = uploaded_file.data
 
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file, engine='openpyxl')

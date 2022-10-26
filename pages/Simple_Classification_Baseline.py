@@ -1,7 +1,7 @@
 import streamlit as st
-from constants import TFIDF_NAME
-from home_utils import create_app
-from models.build_tfidf_logreg import build_tfidf_logreg
+from utils.constants import TFIDF_NAME
+from utils.home_utils import create_app
+from pipelines.build_tfidf_logreg import build_tfidf_logreg
 from pathlib import Path
 import eli5
 import numpy as np
@@ -15,15 +15,15 @@ st.header(TFIDF_NAME)
 
 proceed = False
 
-if "X" not in st.session_state.keys() and "y" not in st.session_state.keys() and "data" not in st.session_state.keys():
-    st.session_state["X"] = None
-    st.session_state["y"] = None
+if "features" not in st.session_state.keys() and "targets" not in st.session_state.keys() and "data" not in st.session_state.keys():
+    st.session_state["features"] = None
+    st.session_state["targets"] = None
     st.session_state["data"] = None
     st.warning("There is no data yet")
 
 else:
-    X = st.session_state["X"]
-    y = st.session_state["y"]
+    X = st.session_state["features"]
+    y = st.session_state["targets"]
     df = st.session_state["data"]
 
     if X is None and y is  None and df is None:
@@ -58,8 +58,6 @@ else:
                 }
             }
 
-            path_to_template = Path(__file__).parent.parent / "streamlit_templates" / "text_classification"
-
             if st.checkbox("Explain model"):
                 r = eli5.explain_weights_df(
                         model['logreg'], 
@@ -69,7 +67,16 @@ else:
                 st.dataframe(r)
 
             if st.checkbox("Save model"):
-                create_app(model=model, log=log, path_to_template=path_to_template.as_posix())
+
+                path_to_template = Path(__file__).parent.parent / "streamlit_templates" / "text_classification"
+                path_to_core = Path(__file__).parent.parent / "core"
+                
+                create_app(
+                    model=model, 
+                    log=log, 
+                    path_to_template=path_to_template.as_posix(),
+                    path_to_core=path_to_core.as_posix()
+                    )
 
                 with open("application.zip", "rb") as fp:
                     btn = st.download_button(

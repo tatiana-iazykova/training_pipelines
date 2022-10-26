@@ -1,13 +1,12 @@
 import pandas as pd
 import streamlit as st
-from constants import EDA_NAME, MINIMAL_NUMBER_OF_OBSERVATIONS, THRESHOLD
-from eda.data_utils import (analyse_data_annotation, clean_duplicates,
+from utils.constants import EDA_NAME, MINIMAL_NUMBER_OF_OBSERVATIONS, THRESHOLD, MIN_CLASS_NUMBER, ANNOTATION_THRESHOLD, BASE_CHECK_THRESHOLD
+from utils.data_utils import (analyse_data_annotation, clean_duplicates,
                             clean_relevant_duplicates, return_text_and_targets)
-from eda.Dataset import PandasDataset
-from eda.eda_utils import (check_value_counts,
+from core.Dataset import PandasDataset
+from utils.eda_utils import (check_value_counts,
                            compute_percentage_of_suitable_data,
                            render_pie_chart)
-
 
 
 st.set_page_config(
@@ -28,14 +27,21 @@ if df is not None:
     with st.form("Information about data"):
         text_columns = st.multiselect(
             label="Select text columns", options=df.columns)
+
         target_column = st.selectbox(
             label="Select target column. There can be only one target column per session",
             options=df.columns
         )
 
+        accepted = True
+
+        if target_column in text_columns:
+            accepted = False
+            st.error("Target column can't be in text columns")
+
         submitted = st.form_submit_button("Submit")
 
-    if submitted:
+    if submitted and accepted:
 
         full_length, cnt_duplicates, df = clean_duplicates(df)
         relevant_length, cnt_relevant_duplicates, df = clean_relevant_duplicates(
@@ -47,25 +53,26 @@ if df is not None:
         df, v_c = check_value_counts(
             df=df, target_column=target_column, threshold=THRESHOLD)
 
-        if df[target_column].nunique() < 2:
+        if df[target_column].nunique() < MIN_CLASS_NUMBER:
             st.warning(
-                "Your data has less than 2 classes eligible for modeling. We cannot proceed with this data :(")
-            st.session_state["X"] = None
-            st.session_state["y"] = None
+                f"Your data has less than {MIN_CLASS_NUMBER} classes eligible for modeling. We cannot proceed with this data :(")
+            st.session_state["features"] = None
+            st.session_state["targets"] = None
             st.session_state["data"] = None
         else:
             na_check = compute_percentage_of_suitable_data(
                 df=df, target_column=target_column, full_length=full_length)
             res = pd.DataFrame(
                 {
-                    "text_columns": text_columns,
+                    "text_columns": ", ".join(text_columns),
                     "target_column": target_column,
                     "percentage of duplicated data": f"{(cnt_duplicates/full_length) * 100:.2f}%",
                     "percentage of duplicated data in relevant columns": f"{(cnt_relevant_duplicates/relevant_length) * 100:.2f}%",
                     f"percentage of target classes, that have more observations than {THRESHOLD}": f"{v_c}%",
                     "percentage of suitable labels": f"{na_check}%",
                     "number of relevant observations": len(df),
-                }
+                },
+                index=[0]
             ).T
 
             res.columns = ['stats']
@@ -97,14 +104,16 @@ if df is not None:
             )
             st.dataframe(report.style.format(precision=2))
 
-            if score > 0.9 and na_check > 90 and v_c > 90 and len(df) > MINIMAL_NUMBER_OF_OBSERVATIONS:
+            if score > ANNOTATION_THRESHOLD and na_check > BASE_CHECK_THRESHOLD \
+                and v_c > BASE_CHECK_THRESHOLD and len(df) > MINIMAL_NUMBER_OF_OBSERVATIONS:
+
                 st.text("Data is good")
-                st.session_state["X"] = X
-                st.session_state["y"] = y
+                st.session_state["features"] = X
+                st.session_state["targets"] = y
                 st.session_state["data"] = df
             else:
                 st.text("Hi there, bitch. Your data is shit")
-                st.session_state["X"] = X
-                st.session_state["y"] = y
+                st.session_state["features"] = X
+                st.session_state["targets"] = y
                 st.session_state["data"] = df
                 st.session_state["trash_data"] = True
