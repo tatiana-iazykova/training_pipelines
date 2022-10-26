@@ -4,3 +4,6 @@ cleanlab
 openpyxl
 streamlit
 joblib
+nptyping
+matplotlib
+eli5

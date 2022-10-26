@@ -4,7 +4,7 @@ from typing import BinaryIO
 import pandas as pd
 
 
-class PandasDataset():
+class PandasDataset:
     """
     Dataset class that allows you to convert multiple formats to 1
     """
