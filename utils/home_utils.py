@@ -5,6 +5,7 @@ import joblib
 import json
 from typing import List, Dict, Any
 import sklearn
+from pathlib import Path
 
 
 def generate_requirements() -> List[str]:
@@ -40,6 +41,12 @@ def generate_requirements() -> List[str]:
     return requirements
 
 
+def delete_cache(path, folders=['.ipynb_checkpoints', "__pycache__"]):
+
+    for folder in folders:
+        _ = [shutil.rmtree(d) for d in list(path.glob(f'**/{folder}'))]
+
+
 def create_app(model: sklearn.pipeline.Pipeline, log: Dict[str, Any], path_to_template: str, path_to_core: str) -> None:
     """
     assembles zip archive with working streamlit application with your model
@@ -50,19 +57,22 @@ def create_app(model: sklearn.pipeline.Pipeline, log: Dict[str, Any], path_to_te
     :param path_to_core: path to the folder where core files are stored
     """
 
-    temporary_dir = "temp/"
+    temporary_dir = Path("temp/")
 
     if os.path.exists(temporary_dir):
         shutil.rmtree(temporary_dir)
         
     shutil.copytree(src=path_to_template, dst=temporary_dir)
-    shutil.copytree(src=path_to_core, dst=temporary_dir)
-    joblib.dump(model, f"{temporary_dir}model.joblib")
+    shutil.copytree(src=path_to_core, dst=temporary_dir / "core")
+    
+    joblib.dump(model, temporary_dir / "model.joblib")
     requirements = generate_requirements()
-    with open(f"{temporary_dir}requirements.txt", "w") as f:
+    with open(temporary_dir / "requirements.txt", "w") as f:
         f.write("\n".join(requirements))
-    with open(f"{temporary_dir}log.json", "w") as f:
+    with open(temporary_dir / "log.json", "w") as f:
         json.dump(log, f, indent=4, ensure_ascii=False)
     
+    delete_cache(temporary_dir)
+
     shutil.make_archive("application", "zip", temporary_dir)
     shutil.rmtree(temporary_dir)
