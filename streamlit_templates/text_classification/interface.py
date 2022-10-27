@@ -34,11 +34,10 @@ if __name__ == '__main__':
     model = load()
 
     uploaded_file = st.file_uploader("Choose file for inference", type=["csv", "xls", "xlsx", "tsv"])
-    uploaded_file = PandasDataset(uploaded_file)
-    uploaded_file = uploaded_file.data
 
     if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file, engine='openpyxl')
+        df = PandasDataset(uploaded_file)
+        df = df.data
         text_columns = st.multiselect(
             label="Select text columns", options=df.columns)
         target_column = st.text_input(
