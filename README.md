@@ -1,6 +1,7 @@
 # training_pipelines
 
 Streamlit app for easy classification modeling
+
 It's so easy that you should only have to clone this repo, install requirements and run the streamlit app. We'll handle the rest :)
 
 
