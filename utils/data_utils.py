@@ -89,7 +89,9 @@ def clean_relevant_duplicates(df: pd.DataFrame, text_columns: List[str], target_
                                  [target_column]].duplicated().sum()
     df = df[text_columns + [target_column]
             ].drop_duplicates().reset_index(drop=True)
-    return relevant_length, cnt_relevant_duplicates, df
+    cnt_nas = df[text_columns + [target_column]].isna().sum().sum()
+    df = df.dropna().reset_index(drop=True)
+    return relevant_length, cnt_relevant_duplicates + cnt_nas, df
 
 
 def return_text_and_targets(df: pd.DataFrame, text_columns: List[str], target_column: str) -> Tuple[pd.Series, List[Any]]:
@@ -126,7 +128,6 @@ def return_text_and_targets(df: pd.DataFrame, text_columns: List[str], target_co
     >>> y
     [1, 1, 1, 0, 1]
     """
-    text_all = []
 
     text_columns_amount = len(text_columns)
 

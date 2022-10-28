@@ -44,6 +44,7 @@ if df is not None:
     if submitted and accepted:
 
         full_length, cnt_duplicates, df = clean_duplicates(df)
+
         relevant_length, cnt_relevant_duplicates, df = clean_relevant_duplicates(
             df=df,
             text_columns=text_columns,
